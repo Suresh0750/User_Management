@@ -2,7 +2,7 @@
 
 // user singUp details
 
-type users = {
+type Users = {
     userName : string,
     userEmail : string,
     mobileNo : string,
@@ -11,4 +11,4 @@ type users = {
 }
 
 
-export default users ;
+export default Users ;

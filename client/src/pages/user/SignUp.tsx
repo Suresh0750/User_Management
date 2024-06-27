@@ -1,16 +1,95 @@
-import React,{useState} from 'react'
+import React,{useEffect, useState,useMemo} from 'react'
 import Button from '../../component/Button'
 import { Link } from 'react-router-dom'
+import {useForm,SubmitHandler} from 'react-hook-form'
+import Users from '../../Utils/UserDetailtypes'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import axios from 'axios'
+import { ToastContainer,toast,Bounce,ToastOptions } from 'react-toastify'
+
+const SERVERSIDE_URL = import.meta.env.VITE_SERVERSIDE_URL  //* server runing on this port
+
+// schema validation for sinup details
+const schema = yup.object().shape({
+  userName: yup.string().required('First Name is mandatory'),
+  userEmail: yup.string().email('Please enter a valid email').required('Email is mandatory'),
+  mobileNo: yup.string().matches(/^\d{10}$/, 'Enter a valid 10-digit mobile number').required('Mobile number is mandatory'),
+  passWord: yup.string()
+    .required('Password is mandatory')
+    .min(6, 'Minimum 6 characters required')
+    .max(15, 'Password should be less than 15 characters')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[0-9]/, 'Password must contain at least one number')
+    .matches(/[@$!%*?&#]/, 'Password must contain at least one special character'),
+  confirmPassword: yup.string()
+    .oneOf([yup.ref('passWord'), null], 'Passwords must match')
+    .required('Confirm Password is mandatory'),
+});
 
 
 
 
 const SignUp = () => {
 
-    const [userDetails,setUserDetail] = useState({
-        
+    const {register,handleSubmit,formState:{errors}} = useForm({
+      resolver : yupResolver(schema)
     })
 
+
+    const [error,setErrors] = useState<string>('')
+    console.log("errorVariable",error)
+
+    // * show the error message to the user
+    useEffect(()=>{
+      for(const key in errors){
+        // console.log(`key`,errors[key]["message"])
+        // let msg = errors[key].message as string
+        if(errors[key]['message']){
+          setErrors(errors[key]["message"] as string)
+          break;
+        }
+      }
+      if(!Object.keys(errors)?.length){
+        setErrors('')
+      }
+      
+    },[Object.keys(errors).length])
+
+    const toastOptions: ToastOptions = {
+      position: "top-center",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    };
+    // data sent to backend
+
+    const onSubmit: SubmitHandler<Users> = async data => {
+      try{
+        console.log(`data from user`,data)
+        console.log('url',SERVERSIDE_URL)
+        let response = await toast.promise(
+          axios.post(`${SERVERSIDE_URL}/user/signup`,data),
+          {
+            pending : "Signing up",
+            success : "User registered successfully",
+            error : "Failed to signup"
+          },
+          toastOptions
+        );
+        console.log('hllow')
+        console.log(`response`,response)
+      }catch(err){
+          console.log(err)
+      }
+    };
+  
 
   return (
     <div>
@@ -27,21 +106,26 @@ const SignUp = () => {
       </div>
       <div className='w-full h-full grid place-items-center col-span-2  bg-white  reletive right-0'>
         <div>
-            <h2 className='text-3xl font-extrabold pb-3 text-white'>Creat Account</h2>
+            <h2 className='text-3xl font-extrabold text-center pb-3 text-slate-950'>Creat Account</h2>
             
-            <div className='grid '>
-                <label>Name :</label>
-                <input name='userName' type="email" placeholder='Email' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
-                <label>Email :</label>
-                <input name='userEmail' type="email" placeholder='Email' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
-                <label>Phone No :</label>
-                <input name='mobileNo' type="password" placeholder='Password' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
-                <label>Password :</label>
-                <input name='passWord' type="email" placeholder='Email' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
-                <label>Confirm Password :</label>
-                <input name='confirmPassword' type="password" placeholder='Password' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
+            <div className='grid ml-[1em]'>   
+              {/* {error ? <p>{error}</p>}      */}
+              {error && <p className='text-red-600 font-bold'>{error}</p> }
+              <form onSubmit={handleSubmit(onSubmit)}>
 
+                <label>Name :</label>
+                <input  {...register("userName",{ required:"User Name required"})} type="text" placeholder='User Name' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
+                <label>Email :</label>
+                <input {...register("userEmail",{ required:"Email is required"})} type="email" placeholder='User Email' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
+                <label>Phone No :</label>
+                <input {...register("mobileNo",{ required:"Mobile number is required",minLength:{value : 10,message:'Enter full number'}})} type="tel" placeholder='User Mobile' minLength={10} className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
+                <label>Password :</label>
+                <input {...register("passWord",{ required:"Password is required"})} type="password" placeholder='User Password' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
+                <label>Confirm Password :</label>
+                <input  {...register("confirmPassword",{ required:"Confirm Password is required"})} type="password" placeholder='Confirm Password' className='border text-black font-serif font-bold border-none  w-[98%] mb-[18px] p-2 rounded-[6px] bg-green-100 ' />
                 <Button>Sign UP</Button>
+              </form>
+
             </div>
         </div>
       </div>

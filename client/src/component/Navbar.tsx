@@ -9,7 +9,7 @@ const Navbar = () => {
       <div >
         <h2 className='text-yellow-600 font-bold ml-[8rem] inline'>MERN Clanse</h2>     <SiReactivex className='inline text-white'/>
       </div>
-      <div className='flex items-center justify-between gap-1 text-yellow-600 mr-[5rem] text-zinc-600'>
+      <div className='flex items-center justify-between gap-1 text-yellow-600 mr-[5rem]'>
         <TbLogin2 />
         sign
         <TbLogout2 />
