@@ -1,13 +1,33 @@
 import {createSlice} from '@reduxjs/toolkit'
 
 
-
-
-const initialState = {
-    users : []
+type UserState = {
+    userLogOut : boolean
 }
 
 
-const userSlice = createSlice({
-    name : 'user'
+type obj =Record <string,any>
+
+export type UserSliceState = UserState
+
+const initialState : UserSliceState = {
+    userLogOut : false
+}
+
+
+export const userSlice:obj = createSlice({
+    name : 'user',
+    initialState,
+    reducers : {
+        loginUser : (state:UserSliceState)=>{
+            state.userLogOut = true
+        },
+        logOut : (state:UserSliceState)=>{
+            state.userLogOut = false
+        }   
+    }
 })
+
+export const {loginUser,logOut} = userSlice.actions
+
+export default userSlice.reducers

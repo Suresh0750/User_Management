@@ -1,12 +1,14 @@
-import React,{useEffect, useState,useMemo} from 'react'
+import React,{useEffect, useState} from 'react'
 import Button from '../../component/Button'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import {useForm,SubmitHandler} from 'react-hook-form'
 import Users from '../../Utils/UserDetailtypes'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import axios from 'axios'
 import { ToastContainer,toast,Bounce,ToastOptions } from 'react-toastify'
+import { useDispatch } from "react-redux";
+import 'react-toastify/dist/ReactToastify.css'
 
 const SERVERSIDE_URL = import.meta.env.VITE_SERVERSIDE_URL  //* server runing on this port
 
@@ -36,6 +38,9 @@ const SignUp = () => {
     const {register,handleSubmit,formState:{errors}} = useForm({
       resolver : yupResolver(schema)
     })
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
 
     const [error,setErrors] = useState<string>('')
@@ -83,10 +88,16 @@ const SignUp = () => {
           },
           toastOptions
         );
-        console.log('hllow')
-        console.log(`response`,response)
+        console.log(response.data)
+        if(response.data.message){
+          setTimeout(()=>{
+            navigate("/logIn")
+          },1500)
+
+        }
       }catch(err){
-          console.log(err)
+        setErrors("Email already exit")
+          console.log('err',err)
       }
     };
   
@@ -109,6 +120,7 @@ const SignUp = () => {
             <h2 className='text-3xl font-extrabold text-center pb-3 text-slate-950'>Creat Account</h2>
             
             <div className='grid ml-[1em]'>   
+            <ToastContainer />
               {/* {error ? <p>{error}</p>}      */}
               {error && <p className='text-red-600 font-bold'>{error}</p> }
               <form onSubmit={handleSubmit(onSubmit)}>
