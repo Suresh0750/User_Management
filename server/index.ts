@@ -5,7 +5,9 @@ import pool from './config/dbConnect'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import userRouter from "./routes/userRoutes"
+import adminRouter from "./routes/adminRouter"
 import { errorHandler } from "./middlewares/errorHandler"
+
 
 
 dotenv.config()
@@ -21,17 +23,10 @@ app.use(cookieParser())
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
-
 app.use(express.static("public"))
 
 app.use("/user",userRouter)
-// app.get("/",(req:Request,res:Response)=>{
-//     res.send("developrs hollow")
-// })
-// app.get("/user",(req,res)=>{
-//     console.log(`req res`)
-// })
-
+app.use("/admin",adminRouter)
 
 // * error Handler
 app.use(errorHandler)

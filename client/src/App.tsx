@@ -6,6 +6,8 @@ import Navbar from './component/Navbar.tsx'
 import Home from './pages/user/HomePage.tsx'
 import SignUp from './pages/user/SignUp.tsx'
 import ProfilePage from './pages/user/ProfilePage.tsx'
+import AdminLogin from './pages/admin/AdminLogin.tsx'
+import Dashboard from './pages/admin/Dashboard.tsx'
 
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
         <Route path='/login' element={<Loginpage/>}></Route>
         <Route path='/signUp' element={<SignUp/>}></Route>
         <Route path='/profile' element={<ProfilePage/>} ></Route>
+        <Route path="/AdminLogin" element ={<AdminLogin/>} ></Route>
+        <Route path="/Dashboard" element = {<Dashboard/>}></Route>
       </Routes>
     </BrowserRouter>
     </>

@@ -44,7 +44,7 @@ const SignUp = () => {
 
 
     const [error,setErrors] = useState<string>('')
-    console.log("errorVariable",error)
+    
 
     // * show the error message to the user
     useEffect(()=>{
@@ -77,9 +77,8 @@ const SignUp = () => {
 
     const onSubmit: SubmitHandler<Users> = async data => {
       try{
-        console.log(`data from user`,data)
-        console.log('url',SERVERSIDE_URL)
-        let response = await toast.promise(
+   
+        let response : any = await toast.promise(
           axios.post(`${SERVERSIDE_URL}/user/signup`,data),
           {
             pending : "Signing up",
@@ -88,7 +87,7 @@ const SignUp = () => {
           },
           toastOptions
         );
-        console.log(response.data)
+
         if(response.data.message){
           setTimeout(()=>{
             navigate("/logIn")

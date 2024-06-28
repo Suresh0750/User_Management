@@ -6,6 +6,13 @@ import pool from '../config/dbConnect'
 import jwt from 'jsonwebtoken'
 
 
+type DecodeJwt ={
+    userEmail : string,
+    iat : number,
+    exp : number
+}
+
+
 const SecretKey :string | undefined = process.env.jwt_SecretKey 
 
 console.log(SecretKey)
@@ -47,7 +54,7 @@ export default {
     login : async(req:Request,res:Response,next:NextFunction) : Promise<void>=>{
             try{
                 console.log(`req enter login page`)
-                console.log(req.body)
+                // console.log(req.body)
                 const {userEmail,passWord} = req.body
 
                 const query = `SELECT email, passWord FROM users WHERE email=$1`
@@ -55,24 +62,62 @@ export default {
                 const userDetail = await pool.query(query,[userEmail])
 
                 // console.log(userDetail,'userDetail')
-                console.log(userDetail.rows)
+                // console.log(userDetail.rows)
                 if(!userDetail.rows.length) throw new Error('Invalid Email or Password')
                 const row = userDetail.rows[0] || []
-                console.log(row)
+                // console.log(row)
                 let passWordCheck:boolean = await bcrypt.compare(passWord,row.password) 
 
-                console.log(`passwordCheck`,passWordCheck)
+                // console.log(`passwordCheck`,passWordCheck)
                 if(!passWordCheck) throw new Error('Invalid Email or Password')
              
                 const token = jwt.sign({userEmail:userEmail},String(SecretKey),{
                     expiresIn :"1h"
                 });
-                console.log(token,'token')
+                // console.log(token,'token')
 
                 res.status(200).send({ success: true, message: "Login successful", token })
             }catch(err){
                 next(err)
             }
+    },
+
+    fetchUserData : async(req :Request,res:Response,next :NextFunction) : Promise<void>=>{
+
+        try{
+            
+        // console.log(req.body)
+        const token = req.body. jwt
+        // console.log(SecretKey)
+        // console.log(`************************`)
+        // console.log(jwt.verify(token,String(SecretKey)))
+        
+        const {userEmail} = jwt.verify(token,String(SecretKey)) as DecodeJwt
+        
+        const query = `SELECT username,email,phone FROM users WHERE email=$1`
+        
+        const userDetails = await pool.query(query,[userEmail])
+        const row = userDetails.rows[0]
+
+        res.status(200).send({success:true,message:'Datafetch',row})
+        // console.log(userDetails)
+
+        }catch(err){
+            // console.log(err)
+            next(err)
+        }
+    },
+
+    uploadImage : async(req :Request,res: Response,next : NextFunction) : Promise<void>=>{
+        try{
+            console.log(`req entered uploadImage`)
+            console.log(req.body)
+            console.log(JSON.stringify(req.body))
+        }catch(err){
+            next(err)
+        }
     }
+
+    
 
 }
