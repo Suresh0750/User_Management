@@ -19,7 +19,8 @@ export const userSlice:obj = createSlice({
     name : 'user',
     initialState,
     reducers : {
-        loginUser : (state:UserSliceState)=>{
+        loginUser : (state:UserSliceState,actions)=>{
+            console.log(actions,'actions')
             state.userLogOut = true
         },
         logOut : (state:UserSliceState)=>{
@@ -30,4 +31,4 @@ export const userSlice:obj = createSlice({
 
 export const {loginUser,logOut} = userSlice.actions
 
-export default userSlice.reducers
+export default userSlice.reducer

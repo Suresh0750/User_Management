@@ -30,4 +30,4 @@ export const AdminSlice:obj = createSlice({
 
 export const {AdminLogin,AdminLogout} = AdminSlice.actions
 
-export default AdminSlice.reducers
+export default AdminSlice.reducer

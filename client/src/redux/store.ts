@@ -5,9 +5,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import UserReducer from "../slice/UserSlice";
 import AdminReducer from "../slice/AdminSlice"
 
-export default configureStore({
+const store =  configureStore({
     reducer:{
         user: UserReducer,
         admin : AdminReducer
     }
 })
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export default store;

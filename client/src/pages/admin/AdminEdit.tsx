@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import { useDispatch } from 'react-redux'
-import{Link, useNavigate} from 'react-router-dom'
+import{useLocation, useNavigate} from 'react-router-dom'
 import { useForm,SubmitHandler } from 'react-hook-form'
 import * as yup from 'yup'
 import axios from 'axios'
@@ -8,28 +8,27 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import {ToastContainer, toast,Bounce,ToastOptions } from 'react-toastify'
 import Users from '../../Utils/UserDetailtypes'
 
+type Input =  {
+    id : number,
+    email : string, 
+    mobile : string,
+    usename : string
+}
+
+
 const SERVERSIDE_URL = import.meta.env.VITE_SERVERSIDE_URL
 // schema validation for sinup details
 const schema = yup.object().shape({
     userName: yup.string().required('First Name is mandatory'),
     userEmail: yup.string().email('Please enter a valid email').required('Email is mandatory'),
     mobileNo: yup.string().matches(/^\d{10}$/, 'Enter a valid 10-digit mobile number').required('Mobile number is mandatory'),
-    passWord: yup.string()
-      .required('Password is mandatory')
-      .min(6, 'Minimum 6 characters required')
-      .max(15, 'Password should be less than 15 characters')
-      .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .matches(/[0-9]/, 'Password must contain at least one number')
-      .matches(/[@$!%*?&#]/, 'Password must contain at least one special character'),
-    confirmPassword: yup.string()
-      .oneOf([yup.ref('passWord'), null], 'Passwords must match')
-      .required('Confirm Password is mandatory'),
+    // passWord: yup.string().required('Password is mandatory').min(6, 'Minimum 6 characters required').max(15, 'Password should be less than 15 characters').matches(/[a-z]/, 'Password must contain at least one lowercase letter').matches(/[A-Z]/, 'Password must contain at least one uppercase letter').matches(/[0-9]/, 'Password must contain at least one number').matches(/[@$!%*?&#]/, 'Password must contain at least one special character'),
+    // confirmPassword: yup.string().oneOf([yup.ref('passWord'), null], 'Passwords must match').required('Confirm Password is mandatory'),
   });
 
-const AddUser = () => {
 
-    const {register,handleSubmit,formState:{errors}} = useForm({
+const AdminEdit = () => {
+    const {register,setValue,handleSubmit,formState:{errors}} = useForm({
         resolver : yupResolver(schema)
       })
 
@@ -38,7 +37,17 @@ const AddUser = () => {
   const [error,setErrors] = useState<string>('')
   const Navigate = useNavigate()  
   const dispatch = useDispatch()
+  const location = useLocation()
 
+//   const{id,email,usename,phone} = location.state 
+  const userEdit = location.state || {}
+      console.log(`location`,location.state)
+      console.log(userEdit)
+    useEffect(()=>{
+        setValue("userName",userEdit. username);
+        setValue("userEmail", userEdit.email);
+        setValue("mobileNo", userEdit.phone);
+    },[])
 
   // * show the error message to the user
   useEffect(()=>{
@@ -68,48 +77,32 @@ const AddUser = () => {
     transition: Bounce,
   };
 
-  const onSubmit : SubmitHandler <Users>= async data=>{
+  const onSubmit: SubmitHandler<Input> = async data => {
     try{
-        console.log(data,`Add user`)
-      
+ 
+      let response : any = await toast.promise(
+        axios.patch(`${SERVERSIDE_URL}/admin/editData`,{data,id:userEdit?.id}),
+        {
+          pending : "Edite User Data",
+          success : "User Detail edit successfully",
+          error : "Failed to save update"
+        },
+        toastOptions
+      );
 
-        const response : any = await toast.promise(
-             axios.post(`${SERVERSIDE_URL}/admin/AddUser`,data),
-            {
-              pending : "Add user",
-              success : "Add User successfully",
-              error : "Failed to Add User"
-            },
-            toastOptions
-          );
-    
-
-        if(response.data.success){
-            setTimeout(()=>{
-                Navigate("/Dashboard")
-              },1500)
-        }
-    }catch(err :any){
-        setErrors('Email already exist')
-        console.log(err)
-       toast.error('Email already exist', {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce,
-      });// console.log(err?.message)
+      if(response.data.success){
+        setTimeout(()=>{
+            Navigate("/Dashboard")
+        },1500)
+      }
+    }catch(err){
+      setErrors("Email already exit")
+        console.log('err',err)
     }
-      
-  }
-
+  };
   return (
     <div className='mt-[60px]'>
-      <h2 className='text-center text-3xl font-bold'>Add New User</h2>
+      <h2 className='text-center text-3xl font-bold'>Edit User</h2>
       <div className='absolute p-[34px] top-[30%] left-[19%] border border-solid border-red-950'>
       {error && <p className='text-red-600 font-bold'>{error}</p> }
         <ToastContainer/>
@@ -117,10 +110,10 @@ const AddUser = () => {
             <input type="text" {...register("userName")} placeholder='User Name'/>
             <input type="email" {...register("userEmail")} placeholder='User Email' />
             <input type="tel" minLength={10} maxLength={10} {...register("mobileNo")} placeholder='Mobile Number'/>
-            <input type="password" {...register("passWord")} placeholder='Password'/>
-            <input type="password" {...register("confirmPassword")} placeholder='Confirm Password'/>
+            {/* <input type="password" {...register("passWord")} placeholder='Password'/>
+            <input type="password" {...register("confirmPassword")} placeholder='Confirm Password'/> */}
             <div>
-                <button>Add</button>
+                <button>save</button>
             </div>
         </form>
       </div>
@@ -128,4 +121,4 @@ const AddUser = () => {
   )
 }
 
-export default AddUser
+export default AdminEdit

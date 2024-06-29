@@ -7,11 +7,12 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import Users from '../../Utils/UserDetailtypes.js'
 import {ToastContainer, toast,Bounce,ToastOptions } from 'react-toastify'
-import { useDispatch } from 'react-redux'
+import { useDispatch,useSelector } from 'react-redux'
 import 'react-toastify/dist/ReactToastify.css'
 import { loginUser } from '../../slice/UserSlice.js'
 
 const SERVERSIDE_URL = import.meta.env.VITE_SERVERSIDE_URL
+
 // * valdition schema
 const schema = yup.object().shape({
   userEmail: yup.string().email('Please enter a valid email').required('Email is mandatory'),
@@ -29,10 +30,13 @@ const schema = yup.object().shape({
 
 const Loginpage = () => {
 
-  
   const {register,handleSubmit,formState:{errors}} = useForm({
     resolver : yupResolver(schema)
   })
+
+  // const userLoginStatus = useSelector((state)=> state?.user?.userLogOut);
+  // console.log("user status :::",userLoginStatus)
+
 
 
   // * updating redux
@@ -85,8 +89,8 @@ const Loginpage = () => {
         toastOptions
       );
 
-      console.log("response",response)
-      console.log("response",response.data)
+      // console.log("response",response)
+      // console.log("response",response.data)
 
       if(response?.data?.success){
 

@@ -113,11 +113,19 @@ export default {
             console.log(`req entered uploadImage`)
             console.log(req.body)
             console.log(JSON.stringify(req.body))
+            console.log(`file\n`,req.file?.fieldname)
+            console.log(req.file)
+        }catch(err){
+            next(err)
+        }
+    },
+    verifyUser : async(req:Request,res:Response,next:NextFunction) : Promise<void>=>{
+        try{
+            console.log(`req reached to verifyUser`)
         }catch(err){
             next(err)
         }
     }
-
     
 
 }

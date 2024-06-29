@@ -49,5 +49,55 @@ export default{
         }catch(err){
             next(err)
         }
+    },
+    AddUser : async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
+        try{
+        
+            const username :string = req.body.userName
+            const phone : string = req.body.mobileNo
+            const email :string = req.body.userEmail
+            const password : string= await bcrypt.hash(req.body.passWord,10)
+
+            const userName = req.body
+            
+            const query = `INSERT INTO users(userName, email, phone, password) VALUES ($1,$2,$3,$4)`
+
+            const insertUser= await pool.query(query,[username,email,phone,password])
+            console.log(insertUser)
+            res.status(200).send({success:true,message:"User Added"})
+
+        }catch(err){
+            next(err)
+        }
+    },
+    deleteData : async(req:Request,res:Response,next:NextFunction) :Promise<void>=>{
+        try{
+            console.log(`req reached deleteData controll`)
+                console.log(`req.query`,req.query.id)
+                console.log(req.body)
+                const email = req.body.id
+                const query = `DELETE FROM users WHERE email=$1`
+    
+                await pool.query(query,[email])
+                res.status(200).send({success:true})
+        }catch(err){
+            next(err)
+        }
+    },
+    editData : async(req:Request,res:Response,next: NextFunction) : Promise<void>=>{
+        try{
+            
+            console.log(`req reached editData`)
+            console.log(req.body)
+            const data = req.body.data
+            const UserId = req.body.id
+            const query = `UPDATE users SET username= $1 , email = $2, phone = $3 WHERE id = $4`
+            console.log(data.userName,data.userEmail,data.mobileNo,UserId)
+            const {rows} = await pool.query(query,[data.userName,data.userEmail,data.mobileNo,UserId])
+            console.log(rows)
+            res.status(200).send({success:true,messge:'user edit updated'})
+        }catch(err){
+            next(err)
+        }
     }
 }
