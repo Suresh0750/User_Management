@@ -39,10 +39,6 @@ export default {
             }catch(error:any){
                 next(error)
             }
-
-            // const token = jwt.sign({userEmail},String(SecretKey),{
-            //     expiresIn :'1h'
-            // })
            
             res.status(200).send({success:true,message:'register success'})
         }catch(error:any){
@@ -86,15 +82,12 @@ export default {
 
         try{
             
-        // console.log(req.body)
         const token = req.body. jwt
-        // console.log(SecretKey)
-        // console.log(`************************`)
-        // console.log(jwt.verify(token,String(SecretKey)))
+
         
         const {userEmail} = jwt.verify(token,String(SecretKey)) as DecodeJwt
         
-        const query = `SELECT username,email,phone FROM users WHERE email=$1`
+        const query = `SELECT username,email,phone,image FROM users WHERE email=$1`
         
         const userDetails = await pool.query(query,[userEmail])
         const row = userDetails.rows[0]
@@ -110,11 +103,18 @@ export default {
 
     uploadImage : async(req :Request,res: Response,next : NextFunction) : Promise<void>=>{
         try{
-            console.log(`req entered uploadImage`)
-            console.log(req.body)
-            console.log(JSON.stringify(req.body))
-            console.log(`file\n`,req.file?.fieldname)
-            console.log(req.file)
+          
+            const {filename} :any = req.file
+            
+            const token = req.body.userJWT
+
+            const {userEmail} = jwt.verify(token,String(SecretKey)) as DecodeJwt
+
+            const query = 'UPDATE users SET image=$1 WHERE email=$2'
+
+            await pool.query(query,[filename,userEmail])
+
+            res.status(200).send({success:true,message:'Image succesfully uploaded'})
         }catch(err){
             next(err)
         }

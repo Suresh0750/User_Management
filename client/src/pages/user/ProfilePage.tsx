@@ -6,6 +6,8 @@ import Users from '../../Utils/UserDetailtypes'
 
 const SERVERSIDE_URL = import.meta.env.VITE_SERVERSIDE_URL  //* server runing on this port
 
+const defaultImage  = 'blank-user-icon-image.jpg'
+
 const ProfilePage = () => {
 
   type userDetail = Omit<Users,'passWord'>
@@ -29,10 +31,12 @@ const ProfilePage = () => {
     //   userName: string;
     // userEmail: string;
     // mobileNo: string;
+    console.log('check image',response)
       setUserData({
         userName :response.data.row.username,
         userEmail : response.data.row.email,
-        mobileNo : response.data.row.phone
+        mobileNo : response.data.row.phone,
+        image : response.data.row.image
       })
     }
     fetchData()
@@ -65,8 +69,7 @@ const ProfilePage = () => {
         <div className='w-[50%] flex flex-col'>
           <div>
             <form onSubmit={uploadedImage} encType='multipart/form-data'>
-              <img src={image ? URL.createObjectURL(image) : ''} alt={""} width="160px" height="160px" />
-
+              <img src={image ? URL.createObjectURL(image) : userData?.image ? `${SERVERSIDE_URL}/images/${userData.image}` : `${SERVERSIDE_URL}/images/${defaultImage}`} alt={""} width="160px" height="160px" />
               <input type="file" name="image"  accept='image/*'  onChange={imageHandler}/>
               <input type="submit" className='cursor-pointer' value={"upload"}/>
             </form>
